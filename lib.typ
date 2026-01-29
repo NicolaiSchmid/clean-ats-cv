@@ -64,6 +64,16 @@
   par(h(indent) + body)
 }
 
+/// Format languages with bold names and normal proficiency
+/// - langs: Array of (name, level) tuples, e.g. (("English", "native"), ("German", "fluent"))
+/// - separator: Separator between languages (default: ", ")
+#let languages(langs, separator: ", ") = {
+  langs.enumerate().map(((i, lang)) => {
+    let (name, level) = lang
+    [*#name* (#level)]
+  }).join(separator)
+}
+
 /// Display contact details header (private)
 #let _show-details-text(
   alignment: center + horizon,
@@ -131,9 +141,12 @@
 /// - math-font: Font for math equations
 /// - separator: Separator character between items
 /// - list-marker: List bullet point character
+/// - heading-above: Space above headings (default: 0.8em)
+/// - heading-below: Space below headings (default: 0.5em)
 /// - details: Dictionary with contact details (name, email, phonenumber, address, linkedin, github, twitter)
 /// - doc: The document content
 #let conf(
+  details: none,
   primary-color: none,
   secondary-color: none,
   link-color: none,
@@ -141,9 +154,11 @@
   math-font: none,
   separator: none,
   list-marker: none,
-  details,
+  heading-above: none,
+  heading-below: none,
   doc,
 ) = {
+  assert(details != none, message: "details is required: provide at minimum (name: \"Your Name\")")
   let primary-color = if primary-color == none { _default-primary-color } else { primary-color }
   let secondary-color = if secondary-color == none { _default-secondary-color } else { secondary-color }
   let link-color = if link-color == none { _default-link-color } else { link-color }
@@ -153,6 +168,8 @@
     text(fill: primary-color, text(font: "Carlito", " \u{007c} "))
   } else { separator }
   let list-marker = if list-marker == none { sym.bullet } else { list-marker }
+  let heading-above = if heading-above == none { 0.8em } else { heading-above }
+  let heading-below = if heading-below == none { 0.5em } else { heading-below }
 
   // Custom show rules
   show math.equation: set text(font: math-font)
@@ -166,10 +183,11 @@
       stroke: (paint: secondary-color, thickness: 0.05em),
     ),
   )
+  show heading.where(level: 1): set block(above: heading-above, below: heading-below)
   show heading.where(level: 2): set text(size: 11pt)
+  show heading.where(level: 2): set block(above: heading-above, below: heading-below)
   show heading.where(level: 3): set text(weight: "regular")
-  show heading.where(level: 2): set block(spacing: 0.7em)
-  show heading.where(level: 3): set block(spacing: 0.7em)
+  show heading.where(level: 3): set block(above: heading-above, below: heading-below)
 
   show link: set text(fill: primary-color)
   show list: set text(size: 10pt)
